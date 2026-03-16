@@ -1,8 +1,10 @@
 const express= require('express')
 const app=express()
 
+app.use(express.json())
+
 app.get('/', (req, res)=>{
-    res.send("Hiii")
+    res.json({success: true, message: "Server is running"})
 })
 
 app.get('/test', (req,res)=>{
