@@ -1,5 +1,11 @@
+require('dotenv').config()
+const connectDB= require('./config/db')
+
 const express= require('express')
+const authRoutes=require('./routes/auth')
 const app=express()
+
+connectDB()
 
 app.use(express.json())
 
@@ -10,6 +16,8 @@ app.get('/', (req, res)=>{
 app.get('/test', (req,res)=>{
     res.send("This is a test")
 })
+
+app.use('/auth', authRoutes)
 
 app.listen(3000, ()=>{
     console.log('Server running on port 3000')
