@@ -3,7 +3,8 @@ const router= express.Router()
 const bcrypt=require('bcrypt')
 const jwt= require('jsonwebtoken')
 const User= require('../models/User')
-const {z, success}=require('zod')
+const {z}=require('zod')
+const authMiddleware= require('../middleware/auth')
 
 const signupSchema=z.object({
     name:z.string(),
@@ -53,6 +54,20 @@ router.post('/login', async(req,res)=>{
         process.env.JWT_SECRET
     )
     return res.status(200).json({success:true, data:{token}})
+})
+
+router.get('/me', authMiddleware, async(req,res)=>{
+    const id=req.user.userId
+    const existinguser= await User.findById(id)
+
+    if(!existinguser){
+        return res.status(401).json({success:false, error:'Invalid user'})
+    }
+    const name=existinguser.name
+    const email=existinguser.email
+    const role=existinguser.role
+
+    return res.status(200).json({success:true, data:{_id:existinguser._id, name: existinguser.name, email:existinguser.email, role:existinguser.role}})
 })
 
 
