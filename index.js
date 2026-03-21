@@ -4,6 +4,7 @@ const connectDB= require('./config/db')
 const express= require('express')
 const authRoutes=require('./routes/auth')
 const classRoutes=require('./routes/class')
+const attendanceRoutes=require('./routes/attendance')
 const app=express()
 
 connectDB()
@@ -20,6 +21,7 @@ app.get('/test', (req,res)=>{
 
 app.use('/auth', authRoutes)
 app.use('/class', classRoutes)
+app.use('/attendance', attendanceRoutes)
 
 app.listen(3000, ()=>{
     console.log('Server running on port 3000')

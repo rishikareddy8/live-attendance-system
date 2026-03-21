@@ -5,6 +5,7 @@ const roleMiddleware= require('../middleware/role')
 const User= require('../models/User')
 const Class= require('../models/Class')
 const {z}= require('zod')
+const Attendance = require('../models/Attendance')
 
 const classSchema=z.object({
     className:z.string()
@@ -57,6 +58,26 @@ router.get('/students', authMiddleware, async(req,res)=>{
     res.status(200).json({success:true, data:{students}})
 })
 
+router.get('/:id/my-attendance', authMiddleware, async(req,res)=>{
+    const student= req.user.userId
+    const role=req.user.role
+    if(role!=='student'){
+        return res.status(403).json({success:false, error:'Forbidden, student access required'})
+    }
+    const existingclass= await Class.findById(req.params.id)
+    if(!existingclass){
+        return res.status(404).json({success:false, error:'Class not found'})
+    }
+    if(!existingclass.studentIds.some(id=>id.toString()===student)){
+        return res.status(403).json({success:false, error:'Forbidden, not class teacher'})
+    }
+    const attendance= await Attendance.findOne({classId:existingclass._id, studentId:student})
+    if(!attendance){
+        return res.status(200).json({success:true, data:{classId:existingclass._id, status:null}})
+    }
+    return res.status(200).json({success:true, data:{classId:existingclass._id, status: attendance.status}})
+})
+
 router.get('/:id', authMiddleware, async(req,res)=>{
     const classId=req.params.id
     const existingclass= await Class.findById(classId).populate('studentIds','name email')
@@ -77,6 +98,5 @@ router.get('/:id', authMiddleware, async(req,res)=>{
 
     return res.status(200).json({success:true, data:{_id:existingclass._id, className:existingclass.className, teacherId:existingclass.teacherId, studentIds:existingclass.studentIds}})
 })
-
 
 module.exports=router
