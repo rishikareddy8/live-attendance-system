@@ -2,10 +2,13 @@ require('dotenv').config()
 const connectDB= require('./config/db')
 
 const express= require('express')
+const http=require('http')
 const authRoutes=require('./routes/auth')
 const classRoutes=require('./routes/class')
 const attendanceRoutes=require('./routes/attendance')
+const setupWebSocket = require('./websocket/index')
 const app=express()
+const server=http.createServer(app)
 
 connectDB()
 
@@ -23,6 +26,8 @@ app.use('/auth', authRoutes)
 app.use('/class', classRoutes)
 app.use('/attendance', attendanceRoutes)
 
-app.listen(3000, ()=>{
+server.listen(3000, ()=>{
     console.log('Server running on port 3000')
 })
+
+setupWebSocket(server)
